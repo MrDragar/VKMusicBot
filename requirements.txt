@@ -1,0 +1,10 @@
+aiogram[i18n]==3.2.0
+python-dotenv~=1.0.0
+vkpymusic~=2.2.4
+tortoise-orm~=0.20.0
+python-socks~=2.4.4
+parse~=1.20.0
+dependency-injector[yaml]~=4.41.0
+tortoise~=0.1.1
+aiohttp==3.9.1
+aiovk~=4.1.0
