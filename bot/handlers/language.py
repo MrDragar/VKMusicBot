@@ -34,7 +34,8 @@ class GetLanguageHandler(ShowLanguagesHandler):
                                            locale=language_code),
                                     reply_markup=ReplyKeyboardRemove())
         await self.state.clear()
-        await set_commands_for_user(self.bot, language_code, self.from_user.id)
+        await set_commands_for_user(self.bot, language_code, self.from_user.id,
+                                    self.data["container"])
 
 
 def useless_function_for_babel():

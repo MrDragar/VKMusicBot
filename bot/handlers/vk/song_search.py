@@ -13,7 +13,7 @@ from bot.handlers.base_handlers import StateMassageHandler
 from bot.keyboards import get_songs_keyboard
 from bot.callbacks import SongCallback, SongListCallback
 from bot.containers import Container
-from bot.services import VKService
+from bot.services import VKTrackByTextService
 
 song_search_router = Router()
 
@@ -43,12 +43,12 @@ async def handle_too_big_text(message: types.Message):
 @song_search_router.message()
 class SendMusicListHandler(StateMassageHandler):
     async def handle(self,
-                     vk_service: VKService = Provide[Container.vk_service]) \
+                     vk_service: VKTrackByTextService = Provide[Container.vk_service]) \
             -> Any:
         await self.state.clear()
 
-        track_list = await vk_service.search_songs_by_text(q=self.event.text,
-                                                           offset=0)
+        track_list = await vk_service.search_tracks(q=self.event.text,
+                                                    offset=0)
         if track_list.count > 100:
             count = 100
         max_offset = count // 10 + (count % 10 > 0) - 1
@@ -68,12 +68,12 @@ class SendSongByNameHandler(CallbackQueryHandler):
 
     @inject
     async def handle(self,
-                     vk_service: VKService = Provide[Container.vk_service]) \
+                     vk_service: VKTrackByTextService = Provide[Container.vk_service]) \
             -> Any:
         text = self.message.text
         data = SongCallback.unpack(self.callback_data)
-        track = await vk_service.get_track_by_text(text, data.index,
-                                                   data.offset)
+        track = await vk_service.get_track(text, data.index,
+                                           data.offset)
         await self.bot.send_audio(self.message.chat.id,
                                   audio=URLInputFile(track.url),
                                   thumbnail=URLInputFile(track.capture_url)
@@ -86,12 +86,12 @@ class SendSongByNameHandler(CallbackQueryHandler):
 class ChangePageHandler(CallbackQueryHandler):
     @inject
     async def handle(self,
-                     vk_service: VKService = Provide[Container.vk_service]) \
+                     vk_service: VKTrackByTextService = Provide[Container.vk_service]) \
             -> Any:
         data = SongListCallback.unpack(self.callback_data)
         track_list = await \
-            vk_service.search_songs_by_text(q=self.message.text,
-                                            offset=data.current_offset)
+            vk_service.search_tracks(q=self.message.text,
+                                     offset=data.current_offset)
         songs_title = [f"[{track.duration} с] {track.artist_name} - " \
                        f"{track.title}" for track in track_list.tracks]
 

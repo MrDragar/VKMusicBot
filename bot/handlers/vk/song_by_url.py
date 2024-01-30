@@ -15,7 +15,7 @@ from bot.handlers.base_handlers import StateMassageHandler
 from bot.keyboards import get_songs_keyboard
 from bot.callbacks import SongCallback, SongListCallback
 from bot.containers import Container
-from bot.services import VKService
+from bot.services import VKTrackByTextService
 
 song_by_url_router = Router()
 
@@ -24,7 +24,7 @@ song_by_url_router = Router()
 @song_by_url_router.message(F.text.regexp(r"[vk.com/audio]+-?[\d_]+"))
 class SendSongByUrlHandler(MessageHandler):
     async def handle(self,
-                     vk_service: VKService = Provide[Container.vk_service]) \
+                     vk_service: VKTrackByTextService = Provide[Container.vk_service]) \
             -> Any:
         owner_id, audio_id = re.search(r"-?[\d_]+",
                                        string=self.event.text).group().split("_")

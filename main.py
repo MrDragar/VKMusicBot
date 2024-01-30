@@ -19,7 +19,7 @@ async def main() -> None:
     await init_db()
     setup_i18n(dp)
     dp.include_router(root_router)
-    await register_commands(bot)
+    await register_commands(bot, container)
     await dp.start_polling(bot)
     await close_db()
 

@@ -2,7 +2,7 @@ from aiogram.types import BotCommand, BotCommandScopeDefault, \
     BotCommandScopeChat
 from aiogram import Bot
 
-from bot.config import ADMINS_ID
+from bot.containers import Container
 from bot.database.models import Language
 
 ru_bot_commands = [
@@ -51,7 +51,7 @@ admin_bot_commands = [
 ]
 
 
-async def register_commands(bot: Bot):
+async def register_commands(bot: Bot, container: Container):
     await bot.set_my_commands(commands=ru_bot_commands,
                               scope=BotCommandScopeDefault(), language_code=None)
 
@@ -61,13 +61,13 @@ async def register_commands(bot: Bot):
     await bot.set_my_commands(commands=en_bot_commands,
                               scope=BotCommandScopeDefault(), language_code="en")
 
-    for admin_id in ADMINS_ID:
+    for admin_id in container.config.ADMINS_ID():
         await bot.set_my_commands(commands=admin_bot_commands,
                                   scope=BotCommandScopeChat(chat_id=admin_id))
 
 
-async def set_commands_for_user(bot: Bot, language_code: Language, user_id: int):
-    if user_id in ADMINS_ID:
+async def set_commands_for_user(bot: Bot, language_code: Language, user_id: int, container: Container):
+    if user_id in container.config.ADMINS_ID():
         return
     match language_code:
         case Language.RUSSIAN:
