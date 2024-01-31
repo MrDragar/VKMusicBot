@@ -43,7 +43,7 @@ async def handle_too_big_text(message: types.Message):
 @song_search_router.message()
 class SendMusicListHandler(StateMassageHandler):
     async def handle(self,
-                     vk_service: VKTrackByTextService = Provide[Container.vk_service]) \
+                     vk_service: VKTrackByTextService = Provide[Container.vk_track_by_text_service]) \
             -> Any:
         await self.state.clear()
 
@@ -68,7 +68,7 @@ class SendSongByNameHandler(CallbackQueryHandler):
 
     @inject
     async def handle(self,
-                     vk_service: VKTrackByTextService = Provide[Container.vk_service]) \
+                     vk_service: VKTrackByTextService = Provide[Container.vk_track_by_text_service]) \
             -> Any:
         text = self.message.text
         data = SongCallback.unpack(self.callback_data)
@@ -86,7 +86,7 @@ class SendSongByNameHandler(CallbackQueryHandler):
 class ChangePageHandler(CallbackQueryHandler):
     @inject
     async def handle(self,
-                     vk_service: VKTrackByTextService = Provide[Container.vk_service]) \
+                     vk_service: VKTrackByTextService = Provide[Container.vk_track_by_text_service]) \
             -> Any:
         data = SongListCallback.unpack(self.callback_data)
         track_list = await \

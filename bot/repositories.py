@@ -1,7 +1,9 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Optional, List, Tuple
 from parse import search as parse_search
 import aiohttp
+from aiohttp.web import HTTPException
 
 from aiovk.drivers import HttpDriver
 import aiovk
@@ -20,18 +22,28 @@ class Track:
 
 
 @dataclass
-class TrackList:
+class TrackArray:
     count: int
     tracks: List[Track]
 
 
 @dataclass
-class Playlist(TrackList):
+class Playlist:
     id: int
     owner_id: int
+    title: str
+    count: int
+    tracks: Optional[List[Track]] = None
+    artist_name: Optional[str] = None
 
 
-class VKRepository:
+@dataclass
+class PlaylistArray:
+    count: int
+    playlists: List[Playlist]
+
+
+class VKRepository(ABC):
     _api: aiovk.API
     _session: aiovk.TokenSession
     _http_session: aiohttp.ClientSession
@@ -49,27 +61,32 @@ class VKRepository:
     async def close(self):
         await self._session.close()
 
-    async def search_song(self, q: str, count: int, offset: int) -> \
-            TrackList:
+    @abstractmethod
+    async def get_by_id(self, owner_id: int, audio_id: int):
+        raise NotImplementedError
+
+    @abstractmethod
+    async def search(self, q: str, count: int, offset: int):
+        raise NotImplementedError
+
+
+class VKTrackRepository(VKRepository):
+    async def search(self, q: str, count: int, offset: int) -> \
+            TrackArray:
 
         data = await self._api.audio.search(q=q, count=count, offset=offset)
-        return self._parse_track_list(data)
+        return self._parse_track_array(data)
 
-    async def get_song_by_id(self, owner_id: int, audio_id: int) -> Track:
+    async def get_by_id(self, owner_id: int, audio_id: int) -> Track:
         data = await self._api.audio.getById(audios=f"{owner_id}_{audio_id}")
         return self._parse_track(data[0])
 
-    async def get_original_song(self, artist_id: int, title: str) -> Track:
+    async def get_original_track(self, artist_id: int, title: str) -> Track:
         a = await self._api.audio.getAudiosByArtist(artist_id=artist_id)
-        track_list = self._parse_track_list(a)
+        track_list = self._parse_track_array(a)
         for track in track_list.tracks:
             if track.title == title:
                 return track
-
-    async def get_playlist_by_id(self, owner_id: int, playlist_id: int,
-                                 count: int, offset: int) -> Playlist:
-        data = await self._api.audio.get(owner_id=owner_id, playlist_id=playlist_id)
-        # return self._parse_track_list(data)
 
     async def get_capture_link(self, owner_id: int, audio_id: int) -> str:
         link = f"https://vk.com/audio{owner_id}_{audio_id}"
@@ -87,25 +104,61 @@ class VKRepository:
             if response.status != 200:
                 raise CaptureAccessException
             return cover
-        except Exception as e:
+        except HTTPException as e:
             return ""
 
-    def _parse_track_list(self, data: dict) -> TrackList:
-        tracks = []
-        for item in data["items"]:
-            tracks.append(self._parse_track(item))
+    @staticmethod
+    def _parse_track_array(data: dict) -> TrackArray:
+        tracks = [VKTrackRepository._parse_track(item) for item in
+                  data["items"]]
         count = data.get("count", 0) or len(data)
-        return TrackList(count=count, tracks=tracks)
+        return TrackArray(count=count, tracks=tracks)
 
-    def _parse_track(self, data: dict) -> Track:
+    @staticmethod
+    def _parse_track(data: dict) -> Track:
         main_artist = data.get("main_artists", [None])[0]
-        return Track(id=data["id"], owner_id=data["owner_id"],
-                     title=data["title"], url=data["url"],
-                     duration=data["duration"],
-                     artist_name=data.get("artist", None),
-                     artist_id=main_artist["id"] if main_artist
-                     else None)
+        return Track(
+            id=data["id"], owner_id=data["owner_id"], title=data["title"],
+            url=data["url"], duration=data["duration"],
+            artist_name=data.get("artist", None),
+            artist_id=main_artist["id"] if main_artist
+            else None
+        )
 
 
-class CaptureAccessException:
+class VKPlaylistRepository(VKRepository):
+    async def get_by_id(self, owner_id: int, playlist_id: int) -> Playlist:
+        playlist_data = await self._api.audio.getPlaylistById(owner_id=owner_id,
+                                                              playlist_id=playlist_id)
+
+        playlist = self._parse_playlist(playlist_data)
+
+        track_data = await self._api.audio.get(owner_id=owner_id,
+                                               playlist_id=playlist_id)
+        track_array = VKTrackRepository._parse_track_array(track_data)
+        playlist.tracks = track_array.tracks
+        return playlist
+
+    async def search(self, q: str, count: int, offset: int) -> PlaylistArray:
+        data = await self._api.audio.searchAlbums(q=q, count=count,
+                                                  offset=offset)
+        return self._parse_playlist_array(data)
+
+    @staticmethod
+    def _parse_playlist(data: dict) -> Playlist:
+        main_artist = data.get("main_artists", [None])[0]
+        return Playlist(
+            id=data["id"], owner_id=data["owner_id"],
+            title=data["title"], count=data["count"],
+            artist_name=main_artist.get("name", None) if main_artist else None
+        )
+
+    @staticmethod
+    def _parse_playlist_array(data: dict) -> PlaylistArray:
+        playlists = [VKPlaylistRepository._parse_playlist(item) for item in
+                     data["items"]]
+        return PlaylistArray(count=data["count"], playlists=playlists)
+
+
+class CaptureAccessException(HTTPException):
     ...

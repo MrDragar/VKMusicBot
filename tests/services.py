@@ -1,13 +1,13 @@
 import asyncio
 
-from bot.repositories import VKRepository, Track
+from bot.repositories import VKTrackRepository, Track
 from bot.services import VKTrackByTextService, VKTrackByIDService
 from bot.containers import TestContainer
 
 import unittest
 
 
-class TestVKService(unittest.IsolatedAsyncioTestCase):
+class TestVKTrackByTextService(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.container = TestContainer()
         self.service: VKTrackByTextService = self.container.vk_track_by_text_service()
@@ -18,18 +18,13 @@ class TestVKService(unittest.IsolatedAsyncioTestCase):
         [self.assertIsInstance(i, Track) for i in track_list.tracks]
         self.assertGreater(track_list.count, 1)
 
-    async def test_get_playlist(self):
-        """https://vk.com/music/album/-2000762159_7762159_ae3f5ac7d64a1d0fc7"""
-        await self.service._repository.get_playlist_by_id(-2000762159, 7762159,
-                                                          count=9, offset=0)
-
     async def asyncTearDown(self):
         del self.service
         del self.container
         await asyncio.sleep(0.250)
 
 
-class TestVKTrackByTextService(unittest.IsolatedAsyncioTestCase):
+class TestVKTrackByIDService(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.container = TestContainer()
         self.service: VKTrackByIDService = self.container.vk_track_by_id_service()
