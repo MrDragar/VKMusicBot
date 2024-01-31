@@ -1,6 +1,8 @@
-from dependency_injector import containers, providers
-from bot.services import VKTrackByTextService, VKTrackByIDService
+from bot.services import (VKTrackByTextService, VKTrackByIDService,
+                          VKPlaylistService)
 from bot.repositories import VKTrackRepository, VKPlaylistRepository
+
+from dependency_injector import containers, providers
 
 
 class Container(containers.DeclarativeContainer):
@@ -30,3 +32,8 @@ class TestContainer(containers.DeclarativeContainer):
                                                  repository=vk_track_repository)
     vk_track_by_id_service = providers.Factory(VKTrackByIDService,
                                                repository=vk_track_repository)
+    vk_playlist_service = providers.Factory(
+        VKPlaylistService,
+        track_repository=vk_track_repository,
+        playlist_repository=vk_playlist_repository
+    )

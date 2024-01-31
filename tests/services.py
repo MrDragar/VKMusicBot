@@ -1,7 +1,8 @@
 import asyncio
 
 from bot.repositories import VKTrackRepository, Track
-from bot.services import VKTrackByTextService, VKTrackByIDService
+from bot.services import (VKTrackByTextService, VKTrackByIDService,
+                          VKPlaylistService)
 from bot.containers import TestContainer
 
 import unittest
@@ -40,6 +41,33 @@ class TestVKTrackByIDService(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(track.artist_name, "Научно-технический Рэп")
         self.assertEqual(track.capture_url,
                          "https://sun9-35.userapi.com/impf/c858216/v858216298/20fc69/lellIqpR8yU.jpg?size=400x400&quality=96&sign=52f0d3895ae95abe6804137109d42d96&type=audio")
+
+    async def asyncTearDown(self):
+        del self.service
+        del self.container
+        await asyncio.sleep(0.250)
+
+
+class TestVKPlaylistService(unittest.IsolatedAsyncioTestCase):
+    async def asyncSetUp(self):
+        self.container = TestContainer()
+        self.service: VKPlaylistService = self.container.vk_playlist_service()
+
+    async def test_search_playlist(self):
+        playlist_array = await self.service.search_playlist("1", offset=0)
+        self.assertGreater(playlist_array.count, 100)
+        self.assertEqual(playlist_array.playlists[0].id, 10506469)
+        self.assertEqual(playlist_array.playlists[0].owner_id, -2000506469)
+        self.assertEqual(playlist_array.playlists[0].title, "1+1=3")
+        self.assertEqual(playlist_array.playlists[0].count, 13)
+
+    async def test_get_playlist(self):
+        playlist = await self.service.get_playlist(owner_id=-2000506469,
+                                                   playlist_id=10506469)
+        self.assertEqual(playlist.id, 10506469)
+        self.assertEqual(playlist.owner_id, -2000506469)
+        self.assertEqual(playlist.title, "1+1=3")
+        self.assertEqual(playlist.count, 13)
 
     async def asyncTearDown(self):
         del self.service

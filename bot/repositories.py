@@ -127,16 +127,19 @@ class VKTrackRepository(VKRepository):
 
 
 class VKPlaylistRepository(VKRepository):
+    async def add_tracks_to_playlist(self, playlist: Playlist, owner_id: int,
+                                     playlist_id: int) -> None:
+        """Changes playlist passed to this method"""
+        track_data = await self._api.audio.get(owner_id=owner_id,
+                                               playlist_id=playlist_id)
+        track_array = VKTrackRepository._parse_track_array(track_data)
+        playlist.tracks = track_array
+
     async def get_by_id(self, owner_id: int, playlist_id: int) -> Playlist:
         playlist_data = await self._api.audio.getPlaylistById(owner_id=owner_id,
                                                               playlist_id=playlist_id)
 
         playlist = self._parse_playlist(playlist_data)
-
-        track_data = await self._api.audio.get(owner_id=owner_id,
-                                               playlist_id=playlist_id)
-        track_array = VKTrackRepository._parse_track_array(track_data)
-        playlist.tracks = track_array.tracks
         return playlist
 
     async def search(self, q: str, count: int, offset: int) -> PlaylistArray:
