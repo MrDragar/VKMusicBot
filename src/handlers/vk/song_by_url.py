@@ -11,7 +11,7 @@ from aiogram.types import URLInputFile
 
 
 from src.containers import Container
-from src.services import VKTrackByIDService
+from src.services import VkTrackService
 
 song_by_url_router = Router()
 
@@ -20,8 +20,8 @@ song_by_url_router = Router()
 @song_by_url_router.message(F.text.regexp(r"[vk.com/audio]+-?[\d_]+"))
 class SendSongByUrlHandler(MessageHandler):
     async def handle(self,
-                     vk_service: VKTrackByIDService =
-                     Provide[Container.vk_track_by_id_service]) -> Any:
+                     vk_service: VkTrackService =
+                     Provide[Container.vk_track_service]) -> Any:
         owner_id, audio_id = re.search(r"-?[\d_]+",
                                        string=self.event.text).group().split("_")
         if not owner_id or not audio_id:

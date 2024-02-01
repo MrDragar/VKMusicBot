@@ -1,5 +1,4 @@
-from src.services import (VKTrackByTextService, VKTrackByIDService,
-                          VKPlaylistService)
+from src.services import (VkTrackService, VKPlaylistService)
 from src.repositories import VKTrackRepository, VKPlaylistRepository
 
 from dependency_injector import containers, providers
@@ -15,10 +14,8 @@ class Container(containers.DeclarativeContainer):
                                             access_token=config.VK_TOKEN)
     vk_playlist_repository = providers.Factory(VKPlaylistRepository,
                                                access_token=config.VK_TOKEN)
-    vk_track_by_text_service = providers.Factory(VKTrackByTextService,
-                                                 repository=vk_track_repository)
-    vk_track_by_id_service = providers.Factory(VKTrackByIDService,
-                                               repository=vk_track_repository)
+    vk_track_service = providers.Factory(VkTrackService,
+                                         repository=vk_track_repository)
 
 
 class TestContainer(containers.DeclarativeContainer):
@@ -27,11 +24,8 @@ class TestContainer(containers.DeclarativeContainer):
                                             access_token=config.VK_TOKEN)
     vk_playlist_repository = providers.Factory(VKPlaylistRepository,
                                                access_token=config.VK_TOKEN)
-
-    vk_track_by_text_service = providers.Factory(VKTrackByTextService,
-                                                 repository=vk_track_repository)
-    vk_track_by_id_service = providers.Factory(VKTrackByIDService,
-                                               repository=vk_track_repository)
+    vk_track_service = providers.Factory(VkTrackService,
+                                         repository=vk_track_repository)
     vk_playlist_service = providers.Factory(
         VKPlaylistService,
         track_repository=vk_track_repository,

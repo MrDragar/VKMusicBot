@@ -88,8 +88,8 @@ class VKTrackRepository(VKRepository):
             if track.title == title:
                 return track
 
-    async def get_capture_link(self, owner_id: int, audio_id: int) -> str:
-        link = f"https://vk.com/audio{owner_id}_{audio_id}"
+    async def get_capture_link(self, owner_id: int, track_id: int) -> str:
+        link = f"https://vk.com/audio{owner_id}_{track_id}"
         headers = {
             'User-Agent': "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/119.0"
         }

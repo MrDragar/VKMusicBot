@@ -36,15 +36,11 @@ class VkTrackService(VKService):
                                                                track.title)
         track.capture_url = await \
             self._repository.get_capture_link(owner_id=orig_track.owner_id,
-                                              audio_id=orig_track.id)
+                                              track_id=orig_track.id)
         return track
 
-
-class VKTrackByTextService(VkTrackService):
-    async def get_track(self, q: str, i: int, offset: int = 0) -> Track:
-        track_list = await self._repository.search(q=q, count=10,
-                                                   offset=offset)
-        track = track_list.tracks[i % 10]
+    async def get_track(self, owner_id: int, track_id: int) -> Track:
+        track = await self._repository.get_by_id(owner_id, track_id)
         track = await self._add_capture(track)
         return track
 
@@ -52,15 +48,6 @@ class VKTrackByTextService(VkTrackService):
         result = await self._repository.search(q=q, count=10,
                                                offset=offset * 10)
         return result
-
-
-class VKTrackByIDService(VkTrackService):
-    _repository: VKTrackRepository
-
-    async def get_track(self, owner_id: int, audio_id: int) -> Track:
-        track = await self._repository.get_by_id(owner_id, audio_id)
-        track = await self._add_capture(track)
-        return track
 
 
 class VKPlaylistService(VKService):
@@ -84,6 +71,5 @@ class VKPlaylistService(VKService):
         return playlist
 
     def __del__(self) -> None:
-        print(self._repository, self._track_repository)
         self._close_repository(self._track_repository)
         super().__del__()

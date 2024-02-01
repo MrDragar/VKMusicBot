@@ -5,7 +5,8 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 from aiogram.utils.i18n import gettext as _
 
 from src.database.models import Language
-from src.callbacks import SongCallback, SongListCallback
+from src.repositories import Track
+from src.callbacks import TrackCallback, SongListCallback
 
 
 def get_language_keyboard() -> types.ReplyKeyboardMarkup:
@@ -37,14 +38,14 @@ def get_main_menu_keyboard() -> types.InlineKeyboardMarkup:
     return keyboard.as_markup()
 
 
-def get_songs_keyboard(songs_title: List[str],
+def get_songs_keyboard(tracks: List[Track],
                        current_offset,
                        max_offset) -> types.InlineKeyboardMarkup:
     keyboard = InlineKeyboardBuilder()
-    for i in range(len(songs_title)):
-        keyboard.button(text=songs_title[i],
-                        callback_data=SongCallback(offset=current_offset,
-                                                   index=i).pack())
+    for track in tracks:
+        keyboard.button(text=track.title,
+                        callback_data=TrackCallback(owner_id=track.owner_id,
+                                                    track_id=track.id).pack())
     keyboard.adjust(1)
     keyboard.row(
         types.InlineKeyboardButton(text="0",

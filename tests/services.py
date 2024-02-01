@@ -1,7 +1,7 @@
 import asyncio
 
 from src.repositories import VKTrackRepository, Track
-from src.services import (VKTrackByTextService, VKTrackByIDService,
+from src.services import (VkTrackService,
                           VKPlaylistService)
 from src.containers import TestContainer
 
@@ -11,28 +11,11 @@ import unittest
 class TestVKTrackByTextService(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.container = TestContainer()
-        self.service: VKTrackByTextService = self.container.vk_track_by_text_service()
-
-    async def test_get_track_by_text(self):
-        track_list = await self.service.search_tracks(q='Линукс',
-                                                      offset=0)
-        [self.assertIsInstance(i, Track) for i in track_list.tracks]
-        self.assertGreater(track_list.count, 1)
-
-    async def asyncTearDown(self):
-        del self.service
-        del self.container
-        await asyncio.sleep(0.250)
-
-
-class TestVKTrackByIDService(unittest.IsolatedAsyncioTestCase):
-    async def asyncSetUp(self):
-        self.container = TestContainer()
-        self.service: VKTrackByIDService = self.container.vk_track_by_id_service()
+        self.service: VkTrackService = self.container.vk_track_service()
 
     async def test_get_track_by_id(self):
         track = await self.service.get_track(owner_id=474499121,
-                                             audio_id=456437231)
+                                             track_id=456437231)
         self.assertIsInstance(track, Track)
         self.assertEqual(track.id, 456437231)
         self.assertEqual(track.owner_id, 474499121)

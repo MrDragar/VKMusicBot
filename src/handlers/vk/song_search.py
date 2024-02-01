@@ -10,9 +10,9 @@ from aiogram.types import URLInputFile
 from src.states import GetSongNameState
 from src.handlers.base_handlers import StateMassageHandler
 from src.keyboards import get_songs_keyboard
-from src.callbacks import SongCallback, SongListCallback
+from src.callbacks import TrackCallback, SongListCallback
 from src.containers import Container
-from src.services import VKTrackByTextService
+from src.services import VkTrackService
 
 song_search_router = Router()
 
@@ -42,8 +42,8 @@ async def handle_too_big_text(message: types.Message):
 @song_search_router.message()
 class SendMusicListHandler(StateMassageHandler):
     async def handle(self,
-                     vk_service: VKTrackByTextService = Provide[
-                         Container.vk_track_by_text_service]) \
+                     vk_service: VkTrackService = Provide[
+                         Container.vk_track_service]) \
             -> Any:
         await self.state.clear()
 
@@ -52,29 +52,30 @@ class SendMusicListHandler(StateMassageHandler):
         if track_list.count > 100:
             track_list.count = 100
         max_offset = track_list.count // 10 + (track_list.count % 10 > 0) - 1
-        songs_title = [f"[{track.duration} с] {track.artist_name} - " \
-                       f"{track.title}" for track in track_list.tracks]
+        # songs_title = [f"[{track.duration} с] {track.artist_name} - " \
+        #                f"{track.title}" for track in track_list.tracks]
 
-        keyboard = get_songs_keyboard(songs_title, 0, max_offset=max_offset)
+        keyboard = get_songs_keyboard(track_list.tracks,
+                                      0, max_offset=max_offset)
 
         await self.bot.send_message(chat_id=self.chat.id,
                                     text=self.event.text,
                                     reply_markup=keyboard)
 
 
-@song_search_router.callback_query(SongCallback.filter())
+@song_search_router.callback_query(TrackCallback.filter())
 class SendSongByNameHandler(CallbackQueryHandler):
     callback_data: str
 
     @inject
     async def handle(self,
-                     vk_service: VKTrackByTextService = Provide[
-                         Container.vk_track_by_text_service]) \
+                     vk_service: VkTrackService = Provide[
+                         Container.vk_track_service]) \
             -> Any:
         text = self.message.text
-        data = SongCallback.unpack(self.callback_data)
-        track = await vk_service.get_track(text, data.index,
-                                           data.offset)
+        data = TrackCallback.unpack(self.callback_data)
+        track = await vk_service.get_track(owner_id=data.owner_id,
+                                           track_id=data.track_id)
         await self.bot.send_audio(self.message.chat.id,
                                   audio=URLInputFile(track.url),
                                   thumbnail=URLInputFile(track.capture_url)
@@ -87,9 +88,8 @@ class SendSongByNameHandler(CallbackQueryHandler):
 class ChangePageHandler(CallbackQueryHandler):
     @inject
     async def handle(self,
-                     vk_service: VKTrackByTextService = Provide[
-                         Container.vk_track_by_text_service]) \
-            -> Any:
+                     vk_service: VkTrackService = Provide[
+                         Container.vk_track_service]) -> Any:
         data = SongListCallback.unpack(self.callback_data)
         track_list = await \
             vk_service.search_tracks(q=self.message.text,
@@ -97,7 +97,7 @@ class ChangePageHandler(CallbackQueryHandler):
         songs_title = [f"[{track.duration} с] {track.artist_name} - " \
                        f"{track.title}" for track in track_list.tracks]
 
-        keyboard = get_songs_keyboard(songs_title,
+        keyboard = get_songs_keyboard(track_list.tracks,
                                       current_offset=data.current_offset,
                                       max_offset=data.max_offset)
 
