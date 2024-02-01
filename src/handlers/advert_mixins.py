@@ -2,8 +2,8 @@ from abc import ABC
 
 from aiogram.handlers import MessageHandler
 
-from bot.config import ADMINS_ID
-from bot.database.advert import get_random_advert, add_current_number_to_advert
+from src.config import ADMINS_ID
+from src.database.advert import get_random_advert, add_current_number_to_advert
 
 
 class AdvertMixin(MessageHandler, ABC):

@@ -4,7 +4,7 @@ from aiogram.utils.i18n.middleware import I18nMiddleware
 from aiogram import Dispatcher
 
 from typing import Dict, Any
-from bot.database.user import create_user
+from src.database.user import create_user
 
 
 class DatabaseI18nMiddleware(I18nMiddleware):

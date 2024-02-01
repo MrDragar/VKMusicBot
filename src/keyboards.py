@@ -4,8 +4,8 @@ from aiogram import types
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 from aiogram.utils.i18n import gettext as _
 
-from bot.database.models import Language
-from bot.callbacks import SongCallback, SongListCallback
+from src.database.models import Language
+from src.callbacks import SongCallback, SongListCallback
 
 
 def get_language_keyboard() -> types.ReplyKeyboardMarkup:

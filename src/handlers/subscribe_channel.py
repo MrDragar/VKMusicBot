@@ -5,8 +5,8 @@ from aiogram.handlers import MessageHandler, CallbackQueryHandler
 from aiogram import F
 from aiogram.utils.i18n import gettext as _
 
-from bot.filters import IsSubscriberFilter, IsSubscriberCallbackFilter
-from bot.keyboards import get_share_link_keyboard
+from src.filters import IsSubscriberFilter, IsSubscriberCallbackFilter
+from src.keyboards import get_share_link_keyboard
 
 subscribe_channel_router = Router()
 

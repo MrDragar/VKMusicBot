@@ -1,7 +1,7 @@
 import asyncio
 
-from bot.repositories import Track, VKPlaylistRepository
-from bot.containers import TestContainer
+from src.repositories import Track, VKPlaylistRepository
+from src.containers import TestContainer
 
 import unittest
 

@@ -8,7 +8,7 @@ from aiogram.utils.i18n import lazy_gettext as __, gettext as _
 from aiogram import F
 
 from .base_handlers import StateMassageHandler
-from bot.filters import IsSubscriberCallbackFilter
+from src.filters import IsSubscriberCallbackFilter
 
 
 common_router = Router()

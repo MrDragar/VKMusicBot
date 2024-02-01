@@ -3,12 +3,12 @@ from aiogram.dispatcher.router import Router
 from aiogram.filters import Command
 from aiogram.types import ReplyKeyboardRemove
 
-from bot.database.models import Language
-from bot.states import ChangingLanguageState
+from src.database.models import Language
+from src.states import ChangingLanguageState
 from .base_handlers import StateMassageHandler
-from bot.database.user import change_language
-from bot.keyboards import get_language_keyboard
-from bot.commands import set_commands_for_user
+from src.database.user import change_language
+from src.keyboards import get_language_keyboard
+from src.commands import set_commands_for_user
 
 language_router = Router()
 

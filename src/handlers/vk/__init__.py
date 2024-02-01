@@ -1,6 +1,6 @@
 from aiogram.dispatcher.router import Router
 
-from bot.filters import IsAdmin
+from src.filters import IsAdmin
 from . import song_by_url
 from . import song_search
 

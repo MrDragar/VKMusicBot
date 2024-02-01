@@ -1,9 +1,9 @@
 from aiogram.dispatcher.router import Router
 from aiogram.filters import Command
 
-from bot.handlers.base_handlers import StateMassageHandler
-from bot.states import EditAdvertTextState
-from bot.database.advert import edit_advert_text
+from src.handlers.base_handlers import StateMassageHandler
+from src.states import EditAdvertTextState
+from src.database.advert import edit_advert_text
 
 edit_text_router = Router()
 

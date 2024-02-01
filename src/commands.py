@@ -2,8 +2,8 @@ from aiogram.types import BotCommand, BotCommandScopeDefault, \
     BotCommandScopeChat
 from aiogram import Bot
 
-from bot.containers import Container
-from bot.database.models import Language
+from src.containers import Container
+from src.database.models import Language
 
 ru_bot_commands = [
     BotCommand(command="start", description="Старт бота"),

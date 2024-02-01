@@ -4,11 +4,11 @@ import asyncio
 import logging
 import sys
 
-from bot.database.init_database import init_db, close_db
-from bot.middlewares import setup_i18n
-from bot.handlers import root_router
-from bot.commands import register_commands
-from bot.containers import Container
+from src.database.init_database import init_db, close_db
+from src.middlewares import setup_i18n
+from src.handlers import root_router
+from src.commands import register_commands
+from src.containers import Container
 
 
 async def main() -> None:

@@ -1,9 +1,9 @@
 import asyncio
 
-from bot.repositories import VKTrackRepository, Track
-from bot.services import (VKTrackByTextService, VKTrackByIDService,
+from src.repositories import VKTrackRepository, Track
+from src.services import (VKTrackByTextService, VKTrackByIDService,
                           VKPlaylistService)
-from bot.containers import TestContainer
+from src.containers import TestContainer
 
 import unittest
 

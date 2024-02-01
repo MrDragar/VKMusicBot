@@ -3,7 +3,7 @@ from aiogram.dispatcher.router import Router
 from . import post
 from . import statistic
 from . import advert
-from bot.filters import IsAdmin
+from src.filters import IsAdmin
 
 admin_router = Router()
 

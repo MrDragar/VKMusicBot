@@ -4,7 +4,7 @@ from aiogram.types import Message, ChatMemberOwner, ChatMemberAdministrator, \
 from aiogram.methods import GetChatMember
 
 # from bot.config import ADMINS_ID, CHANNEL_ID
-from bot.containers import Container
+from src.containers import Container
 
 
 class IsAdmin(Filter):

@@ -4,7 +4,7 @@ from aiogram.dispatcher.router import Router
 from aiogram.filters import Command
 from aiogram.handlers import MessageHandler
 
-from bot.database.day_statistic import get_monthly_statistics, get_day_statistic
+from src.database.day_statistic import get_monthly_statistics, get_day_statistic
 
 statistic_router = Router()
 

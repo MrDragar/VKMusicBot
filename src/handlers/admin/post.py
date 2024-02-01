@@ -3,9 +3,9 @@ from aiogram.dispatcher.router import Router
 from aiogram.filters import Command
 from aiogram.utils.i18n import gettext as _
 
-from bot.handlers.base_handlers import StateMassageHandler
-from bot.states import PostingState
-from bot.database.user import get_users
+from src.handlers.base_handlers import StateMassageHandler
+from src.states import PostingState
+from src.database.user import get_users
 
 post_router = Router()
 

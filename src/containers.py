@@ -1,6 +1,6 @@
-from bot.services import (VKTrackByTextService, VKTrackByIDService,
+from src.services import (VKTrackByTextService, VKTrackByIDService,
                           VKPlaylistService)
-from bot.repositories import VKTrackRepository, VKPlaylistRepository
+from src.repositories import VKTrackRepository, VKPlaylistRepository
 
 from dependency_injector import containers, providers
 

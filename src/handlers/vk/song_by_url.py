@@ -10,8 +10,8 @@ from dependency_injector.wiring import inject, Provide
 from aiogram.types import URLInputFile
 
 
-from bot.containers import Container
-from bot.services import VKTrackByIDService
+from src.containers import Container
+from src.services import VKTrackByIDService
 
 song_by_url_router = Router()
 

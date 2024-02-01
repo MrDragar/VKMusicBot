@@ -4,7 +4,7 @@ from aiogram.utils.i18n import gettext as _
 from dependency_injector.wiring import Provide
 
 from .base_handlers import StateMassageHandler
-from bot.states import FeedBackState
+from src.states import FeedBackState
 from ..containers import Container
 
 feedback_router = Router()
