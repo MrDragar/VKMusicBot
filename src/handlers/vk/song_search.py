@@ -54,8 +54,6 @@ class SendMusicListHandler(StateMassageHandler):
         if track_list.count > 100:
             track_list.count = 100
         max_offset = track_list.count // 10 + (track_list.count % 10 > 0) - 1
-        # songs_title = [f"[{track.duration} с] {track.artist_name} - " \
-        #                f"{track.title}" for track in track_list.tracks]
 
         keyboard = get_songs_keyboard(
             track_list.tracks,
@@ -107,8 +105,6 @@ class ChangePageHandler(CallbackQueryHandler):
             q=self.message.text,
             offset=data.current_offset
         )
-        songs_title = [f"[{track.duration} с] {track.artist_name} - " \
-                       f"{track.title}" for track in track_list.tracks]
 
         keyboard = get_songs_keyboard(
             track_list.tracks,

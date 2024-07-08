@@ -14,6 +14,9 @@ class SongListCallback(CallbackData, prefix="SongList", sep=";"):
 class PlaylistCallback(CallbackData, prefix="Playlist", sep=";"):
     owner_id: int
     playlist_id: int
+    current_offset: int
+    max_offset: int
+    first_time: bool = False
 
 
 class PlaylistListCallback(CallbackData, prefix="PlaylistList", sep=";"):

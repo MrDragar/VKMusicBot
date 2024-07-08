@@ -75,7 +75,7 @@ class VKTrackRepository(VKRepository):
             TrackArray:
 
         data = await self._api.audio.search(q=q, count=count, offset=offset)
-        return self._parse_track_array(data)
+        return self.parse_track_array(data)
 
     async def get_by_id(self, owner_id: int, audio_id: int) -> Track:
         data = await self._api.audio.getById(audios=f"{owner_id}_{audio_id}")
@@ -83,7 +83,7 @@ class VKTrackRepository(VKRepository):
 
     async def get_original_track(self, artist_id: int, title: str) -> Track:
         a = await self._api.audio.getAudiosByArtist(artist_id=artist_id)
-        track_list = self._parse_track_array(a)
+        track_list = self.parse_track_array(a)
         for track in track_list.tracks:
             if track.title == title:
                 return track
@@ -108,7 +108,7 @@ class VKTrackRepository(VKRepository):
             return ""
 
     @staticmethod
-    def _parse_track_array(data: dict) -> TrackArray:
+    def parse_track_array(data: dict) -> TrackArray:
         tracks = [VKTrackRepository._parse_track(item) for item in
                   data["items"]]
         count = data.get("count", 0) or len(data)
@@ -127,13 +127,19 @@ class VKTrackRepository(VKRepository):
 
 
 class VKPlaylistRepository(VKRepository):
-    async def add_tracks_to_playlist(self, playlist: Playlist, owner_id: int,
-                                     playlist_id: int) -> None:
+    async def add_tracks_to_playlist(
+            self, playlist: Playlist, owner_id: int,
+            playlist_id: int, offset: int, count: int = 10
+    ) -> None:
         """Changes playlist passed to this method"""
-        track_data = await self._api.audio.get(owner_id=owner_id,
-                                               playlist_id=playlist_id)
-        track_array = VKTrackRepository._parse_track_array(track_data)
-        playlist.tracks = track_array
+        track_data = await self._api.audio.get(
+            owner_id=owner_id,
+            playlist_id=playlist_id,
+            offset=offset,
+            count=count
+        )
+        track_array = VKTrackRepository.parse_track_array(track_data)
+        playlist.tracks = track_array.tracks
 
     async def get_by_id(self, owner_id: int, playlist_id: int) -> Playlist:
         playlist_data = await self._api.audio.getPlaylistById(owner_id=owner_id,

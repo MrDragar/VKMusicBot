@@ -11,7 +11,8 @@ class VKService(ABC):
     def __init__(self, repository: VKRepository):
         self._repository = repository
 
-    def _close_repository(self, repository: VKRepository):
+    @staticmethod
+    def _close_repository(repository: VKRepository):
         loop = asyncio.get_event_loop()
         try:
             loop.create_task(repository.close())
@@ -60,14 +61,16 @@ class VKPlaylistService(VKService):
         self._track_repository = track_repository
 
     async def search_playlist(self, q: str, offset: int = 0) -> PlaylistArray:
-        playlist_array = await self._repository.search(q=q, offset=offset,
+        playlist_array = await self._repository.search(q=q, offset=offset * 10,
                                                        count=10)
         return playlist_array
 
-    async def get_playlist(self, owner_id: int, playlist_id: int) -> Playlist:
+    async def get_playlist(self, owner_id: int, playlist_id: int, offset: int = 0) -> Playlist:
         playlist = await self._repository.get_by_id(owner_id, playlist_id)
-        await self._repository.add_tracks_to_playlist(playlist, owner_id,
-                                                      playlist_id)
+        await self._repository.add_tracks_to_playlist(
+            playlist, owner_id, playlist_id,
+            offset=offset * 10, count=10
+        )
         return playlist
 
     def __del__(self) -> None:

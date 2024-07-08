@@ -9,8 +9,9 @@ from aiogram.types import URLInputFile
 
 from src.states import GetPlaylistNameState
 from src.handlers.base_handlers import StateMassageHandler
-from src.keyboards import get_songs_keyboard
-from src.callbacks import TrackCallback, SongListCallback
+from src.keyboards import get_playlists_keyboard, get_playlist_keyboard
+from src.callbacks import (TrackCallback, SongListCallback,
+                           PlaylistListCallback, PlaylistCallback)
 from src.containers import Container
 from src.services import VkTrackService, VKTrackRepository, VKPlaylistService
 
@@ -34,7 +35,7 @@ async def handle_too_big_text(message: types.Message):
 
 
 @router.message(GetPlaylistNameState.step1, invert_f(F.text))
-async def handle_too_big_text(message: types.Message):
+async def handle_no_text(message: types.Message):
     await message.answer(_("Чё надо?"))
 
 
@@ -42,10 +43,87 @@ async def handle_too_big_text(message: types.Message):
 class SendPlaylistListHandler(StateMassageHandler):
     async def handle(
             self,
-            vk_service: VKPlaylistService = Provide[Container.vk_playlist_service]
+            vk_service: VKPlaylistService = Provide[
+                Container.vk_playlist_service]
     ) -> Any:
-        print(vk_service)
+        await self.state.clear()
+
         playlist_list = await vk_service.search_playlist(
             q=self.event.text,
             offset=0
         )
+        if playlist_list.count > 50:
+            playlist_list.count = 50
+        max_offset = playlist_list.count // 10 + (
+                playlist_list.count % 10 > 0) - 1
+
+        keyboard = get_playlists_keyboard(
+            playlists=playlist_list.playlists,
+            current_offset=0,
+            max_offset=max_offset
+        )
+        await self.bot.send_message(
+            chat_id=self.event.chat.id,
+            text=self.event.text,
+            reply_markup=keyboard
+        )
+
+
+@router.callback_query(PlaylistListCallback.filter())
+class ChangePlaylistsPageHandler(CallbackQueryHandler):
+    async def handle(
+            self,
+            vk_service: VKPlaylistService = Provide[
+                Container.vk_playlist_service]
+    ) -> Any:
+        data = PlaylistListCallback.unpack(self.callback_data)
+
+        playlist_list = await vk_service.search_playlist(
+            q=self.message.text,
+            offset=data.current_offset
+        )
+
+        keyboard = get_playlists_keyboard(
+            playlists=playlist_list.playlists,
+            current_offset=data.current_offset,
+            max_offset=data.max_offset
+        )
+
+        await self.bot.edit_message_reply_markup(
+            chat_id=self.message.chat.id,
+            message_id=self.message.message_id,
+            reply_markup=keyboard
+        )
+
+
+@router.callback_query(PlaylistCallback.filter())
+class SendPlaylist(CallbackQueryHandler):
+    async def handle(
+            self,
+            vk_service: VKPlaylistService = Provide[
+                Container.vk_playlist_service]
+    ) -> Any:
+        data = PlaylistCallback.unpack(self.callback_data)
+        playlist = await vk_service.get_playlist(
+            data.owner_id,
+            data.playlist_id,
+            data.current_offset
+        )
+        if playlist.count > 100:
+            playlist.count = 100
+        max_offset = playlist.count // 10 + (playlist.count % 10 > 0) - 1
+
+        keyboard = get_playlist_keyboard(playlist, data.current_offset,
+                                         max_offset)
+        if data.first_time:
+            await self.bot.send_message(
+                chat_id=self.message.chat.id,
+                text=f"[{playlist.count}] {playlist.artist_name} - {playlist.title}",
+                reply_markup=keyboard
+            )
+        else:
+            await self.bot.edit_message_reply_markup(
+                chat_id=self.message.chat.id,
+                message_id=self.message.message_id,
+                reply_markup=keyboard
+            )
