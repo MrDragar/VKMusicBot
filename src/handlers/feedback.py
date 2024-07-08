@@ -7,10 +7,10 @@ from .base_handlers import StateMassageHandler
 from src.states import FeedBackState
 from ..containers import Container
 
-feedback_router = Router()
+router = Router()
 
 
-@feedback_router.message(Command("send_feedback"))
+@router.message(Command("send_feedback"))
 class StartPostHandler(StateMassageHandler):
     async def handle(self):
         await self.bot.send_message(chat_id=self.chat.id,
@@ -18,7 +18,7 @@ class StartPostHandler(StateMassageHandler):
         await self.state.set_state(FeedBackState.step)
 
 
-@feedback_router.message(FeedBackState.step)
+@router.message(FeedBackState.step)
 class SendPostHandler(StateMassageHandler):
     async def handle(self, admins_id: [int] = Provide[Container.config.ADMINS_ID]):
         await self.state.clear()

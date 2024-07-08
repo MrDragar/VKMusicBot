@@ -7,10 +7,10 @@ from src.handlers.base_handlers import StateMassageHandler
 from src.states import PostingState
 from src.database.user import get_users
 
-post_router = Router()
+router = Router()
 
 
-@post_router.message(Command("post"))
+@router.message(Command("post"))
 class StartPostHandler(StateMassageHandler):
     async def handle(self):
         await self.bot.send_message(chat_id=self.chat.id,
@@ -18,7 +18,7 @@ class StartPostHandler(StateMassageHandler):
         await self.state.set_state(PostingState.step)
 
 
-@post_router.message(PostingState.step)
+@router.message(PostingState.step)
 class SendPostHandler(StateMassageHandler):
     async def handle(self):
         await self.state.clear()

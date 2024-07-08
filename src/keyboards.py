@@ -5,8 +5,11 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 from aiogram.utils.i18n import gettext as _
 
 from src.database.models import Language
-from src.repositories import Track
-from src.callbacks import TrackCallback, SongListCallback
+from src.repositories import Track, Playlist
+from src.callbacks import (
+    TrackCallback, SongListCallback,
+    PlaylistListCallback, PlaylistCallback
+)
 
 
 def get_language_keyboard() -> types.ReplyKeyboardMarkup:
@@ -38,9 +41,11 @@ def get_main_menu_keyboard() -> types.InlineKeyboardMarkup:
     return keyboard.as_markup()
 
 
-def get_songs_keyboard(tracks: List[Track],
-                       current_offset,
-                       max_offset) -> types.InlineKeyboardMarkup:
+def get_songs_keyboard(
+        tracks: List[Track],
+        current_offset,
+        max_offset
+) -> types.InlineKeyboardMarkup:
     keyboard = InlineKeyboardBuilder()
     for track in tracks:
         keyboard.button(text=track.title,
@@ -51,7 +56,7 @@ def get_songs_keyboard(tracks: List[Track],
         types.InlineKeyboardButton(text="0",
                                    callback_data=SongListCallback(
                                        current_offset=0,
-                                       max_offset=max_offset).pack()  if current_offset > 0 else "0"
+                                       max_offset=max_offset).pack() if current_offset > 0 else "0"
                                    ),
 
         types.InlineKeyboardButton(text="<",
@@ -69,6 +74,54 @@ def get_songs_keyboard(tracks: List[Track],
                                    ),
         types.InlineKeyboardButton(text=str(max_offset),
                                    callback_data=SongListCallback(
+                                       current_offset=max_offset,
+                                       max_offset=max_offset).pack() if current_offset < max_offset else "0"
+                                   ),
+    )
+
+    keyboard.row(types.InlineKeyboardButton(text=_("Отмена"),
+                                            callback_data="cancel"))
+
+    return keyboard.as_markup()
+
+
+def get_playlists_keyboard(
+        playlists: List[Playlist],
+        current_offset,
+        max_offset
+) -> types.InlineKeyboardMarkup:
+    keyboard = InlineKeyboardBuilder()
+    for playlist in playlists:
+        keyboard.button(
+            text=playlist.title,
+            callback_data=PlaylistCallback(
+                owner_id=playlist.owner_id,
+                playlist_id=playlist.id).pack()
+            )
+
+    keyboard.adjust(1)
+    keyboard.row(
+        types.InlineKeyboardButton(text="0",
+                                   callback_data=PlaylistListCallback(
+                                       current_offset=0,
+                                       max_offset=max_offset).pack() if current_offset > 0 else "0"
+                                   ),
+
+        types.InlineKeyboardButton(text="<",
+                                   callback_data=PlaylistListCallback(
+                                       current_offset=current_offset - 1,
+                                       max_offset=max_offset).pack() if current_offset > 0 else "0"
+                                   ),
+
+        types.InlineKeyboardButton(text=str(current_offset),
+                                   callback_data="0"),
+        types.InlineKeyboardButton(text=">",
+                                   callback_data=PlaylistListCallback(
+                                       current_offset=current_offset + 1,
+                                       max_offset=max_offset).pack() if current_offset < max_offset else "0"
+                                   ),
+        types.InlineKeyboardButton(text=str(max_offset),
+                                   callback_data=PlaylistListCallback(
                                        current_offset=max_offset,
                                        max_offset=max_offset).pack() if current_offset < max_offset else "0"
                                    ),

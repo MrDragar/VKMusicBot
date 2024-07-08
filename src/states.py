@@ -34,3 +34,7 @@ class GetAdvertByIdState(StatesGroup):
 
 class GetSongNameState(StatesGroup):
     step1 = State()
+
+
+class GetPlaylistNameState(StatesGroup):
+    step1 = State()

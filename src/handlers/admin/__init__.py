@@ -5,10 +5,10 @@ from . import statistic
 from . import advert
 from src.filters import IsAdmin
 
-admin_router = Router()
+router = Router()
 
-admin_router.message.filter(IsAdmin())
+router.message.filter(IsAdmin())
 
-admin_router.include_router(post.post_router)
-admin_router.include_router(statistic.statistic_router)
-admin_router.include_router(advert.advert_router)
+router.include_router(post.router)
+router.include_router(statistic.router)
+router.include_router(advert.router)

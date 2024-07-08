@@ -3,10 +3,12 @@ from aiogram.dispatcher.router import Router
 from src.filters import IsAdmin
 from . import song_by_url
 from . import song_search
+from . import playlist_search
 
-vk_router = Router()
+router = Router()
 
-vk_router.message.filter(IsAdmin())
+router.message.filter(IsAdmin())
 
-vk_router.include_router(song_by_url.song_by_url_router)
-vk_router.include_router(song_search.song_search_router)
+router.include_router(song_by_url.router)
+router.include_router(playlist_search.router)
+router.include_router(song_search.router)

@@ -11,12 +11,12 @@ from .base_handlers import StateMassageHandler
 from src.filters import IsSubscriberCallbackFilter
 
 
-common_router = Router()
+router = Router()
 
 
-@common_router.message(Command("cancel"))
-@common_router.message(F.text == __("Отмена"))
-@common_router.message(F.text.lower() == __("отмена"))
+@router.message(Command("cancel"))
+@router.message(F.text == __("Отмена"))
+@router.message(F.text.lower() == __("отмена"))
 class CancelHandler(StateMassageHandler):
     async def handle(self) -> Any:
         await self.bot.send_message(chat_id=self.chat.id, text=_("Отмена"),
@@ -24,7 +24,7 @@ class CancelHandler(StateMassageHandler):
         await self.state.clear()
 
 
-@common_router.message(Command("start", "help"))
+@router.message(Command("start", "help"))
 class StartHandler(StateMassageHandler):
     async def handle(self) -> Any:
         await self.bot.send_message(chat_id=self.chat.id,
@@ -38,8 +38,8 @@ class StartHandler(StateMassageHandler):
                                         "Для смены языка пропишите /language ."))
 
 
-@common_router.callback_query(F.text == "check_subscribe",
-                              IsSubscriberCallbackFilter())
+@router.callback_query(F.text == "check_subscribe",
+                       IsSubscriberCallbackFilter())
 class StartCallbackHandler(CallbackQueryHandler):
     async def handle(self) -> Any:
         await self.bot.send_message(chat_id=self.event.message.chat.id,

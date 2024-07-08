@@ -6,10 +6,10 @@ from aiogram.handlers import MessageHandler
 
 from src.database.day_statistic import get_monthly_statistics, get_day_statistic
 
-statistic_router = Router()
+router = Router()
 
 
-@statistic_router.message(Command("get_month_statistic"))
+@router.message(Command("get_month_statistic"))
 class SentMonthlyStatisticHandler(MessageHandler):
     async def handle(self):
         result = await get_monthly_statistics(date.today())
@@ -22,7 +22,7 @@ class SentMonthlyStatisticHandler(MessageHandler):
                                             result["unsuccessful_requests"]))
 
 
-@statistic_router.message(Command("get_day_statistic"))
+@router.message(Command("get_day_statistic"))
 class SentMonthlyStatisticHandler(MessageHandler):
     async def handle(self):
         result = await get_day_statistic()

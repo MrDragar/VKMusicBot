@@ -6,7 +6,7 @@ import sys
 
 from src.database.init_database import init_db, close_db
 from src.middlewares import setup_i18n
-from src.handlers import root_router
+from src.handlers import router
 from src.commands import register_commands
 from src.containers import Container
 
@@ -18,7 +18,7 @@ async def main() -> None:
     dp = Dispatcher(container=container)
     await init_db()
     setup_i18n(dp)
-    dp.include_router(root_router)
+    dp.include_router(router)
     await register_commands(bot, container)
     await dp.start_polling(bot)
     await close_db()

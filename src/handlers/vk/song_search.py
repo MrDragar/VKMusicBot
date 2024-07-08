@@ -14,10 +14,10 @@ from src.callbacks import TrackCallback, SongListCallback
 from src.containers import Container
 from src.services import VkTrackService
 
-song_search_router = Router()
+router = Router()
 
 
-@song_search_router.message(Command("search_song"))
+@router.message(Command("search_song"))
 class SearchSongsHandler(MessageHandler):
     async def handle(self):
         await self.bot.delete_message(self.from_user.id,
@@ -28,79 +28,96 @@ class SearchSongsHandler(MessageHandler):
         await self.data["state"].set_state(GetSongNameState.step1)
 
 
-@song_search_router.message(GetSongNameState.step1, F.text.len() > 40)
+@router.message(GetSongNameState.step1, F.text.len() > 40)
 async def handle_too_big_text(message: types.Message):
     await message.answer(_("Строка должна сожержать не более 40 символов"))
 
 
-@song_search_router.message(GetSongNameState.step1, invert_f(F.text))
+@router.message(GetSongNameState.step1, invert_f(F.text))
 async def handle_too_big_text(message: types.Message):
     await message.answer(_("Чё надо?"))
 
 
-@song_search_router.message(GetSongNameState.step1)
-@song_search_router.message()
+@router.message(GetSongNameState.step1)
+@router.message()
 class SendMusicListHandler(StateMassageHandler):
-    async def handle(self,
-                     vk_service: VkTrackService = Provide[
-                         Container.vk_track_service]) \
-            -> Any:
+    async def handle(
+            self,
+            vk_service: VkTrackService = Provide[Container.vk_track_service]
+    ) -> Any:
         await self.state.clear()
 
-        track_list = await vk_service.search_tracks(q=self.event.text,
-                                                    offset=0)
+        track_list = await vk_service.search_tracks(
+            q=self.event.text,
+            offset=0
+        )
         if track_list.count > 100:
             track_list.count = 100
         max_offset = track_list.count // 10 + (track_list.count % 10 > 0) - 1
         # songs_title = [f"[{track.duration} с] {track.artist_name} - " \
         #                f"{track.title}" for track in track_list.tracks]
 
-        keyboard = get_songs_keyboard(track_list.tracks,
-                                      0, max_offset=max_offset)
+        keyboard = get_songs_keyboard(
+            track_list.tracks,
+            current_offset=0,
+            max_offset=max_offset
+        )
 
-        await self.bot.send_message(chat_id=self.chat.id,
-                                    text=self.event.text,
-                                    reply_markup=keyboard)
+        await self.bot.send_message(
+            chat_id=self.chat.id,
+            text=self.event.text,
+            reply_markup=keyboard
+        )
 
 
-@song_search_router.callback_query(TrackCallback.filter())
+@router.callback_query(TrackCallback.filter())
 class SendSongByNameHandler(CallbackQueryHandler):
     callback_data: str
 
     @inject
-    async def handle(self,
-                     vk_service: VkTrackService = Provide[
-                         Container.vk_track_service]) \
-            -> Any:
+    async def handle(
+            self,
+            vk_service: VkTrackService = Provide[Container.vk_track_service]
+    ) -> Any:
         text = self.message.text
         data = TrackCallback.unpack(self.callback_data)
-        track = await vk_service.get_track(owner_id=data.owner_id,
-                                           track_id=data.track_id)
-        await self.bot.send_audio(self.message.chat.id,
-                                  audio=URLInputFile(track.url),
-                                  thumbnail=URLInputFile(track.capture_url)
-                                  if track.capture_url else None,
-                                  title=track.title,
-                                  performer=track.artist_name)
+        track = await vk_service.get_track(
+            owner_id=data.owner_id,
+            track_id=data.track_id
+        )
+        await self.bot.send_audio(
+            self.message.chat.id,
+            audio=URLInputFile(track.url),
+            thumbnail=URLInputFile(
+                track.capture_url) if track.capture_url else None,
+            title=track.title,
+            performer=track.artist_name
+        )
 
 
-@song_search_router.callback_query(SongListCallback.filter())
+@router.callback_query(SongListCallback.filter())
 class ChangePageHandler(CallbackQueryHandler):
     @inject
-    async def handle(self,
-                     vk_service: VkTrackService = Provide[
-                         Container.vk_track_service]) -> Any:
+    async def handle(
+            self,
+            vk_service: VkTrackService = Provide[Container.vk_track_service]
+    ) -> Any:
         data = SongListCallback.unpack(self.callback_data)
-        track_list = await \
-            vk_service.search_tracks(q=self.message.text,
-                                     offset=data.current_offset)
+        track_list = await vk_service.search_tracks(
+            q=self.message.text,
+            offset=data.current_offset
+        )
         songs_title = [f"[{track.duration} с] {track.artist_name} - " \
                        f"{track.title}" for track in track_list.tracks]
 
-        keyboard = get_songs_keyboard(track_list.tracks,
-                                      current_offset=data.current_offset,
-                                      max_offset=data.max_offset)
+        keyboard = get_songs_keyboard(
+            track_list.tracks,
+            current_offset=data.current_offset,
+            max_offset=data.max_offset
+        )
 
-        await self.bot.edit_message_reply_markup(chat_id=self.message.chat.id,
-                                                 message_id=self.message.message_id,
-                                                 reply_markup=keyboard)
+        await self.bot.edit_message_reply_markup(
+            chat_id=self.message.chat.id,
+            message_id=self.message.message_id,
+            reply_markup=keyboard
+        )

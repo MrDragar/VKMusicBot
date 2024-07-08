@@ -7,11 +7,11 @@ from . import feedback
 from . import subscribe_channel
 from . import vk
 
-root_router = Router()
+router = Router()
 
-root_router.include_router(subscribe_channel.subscribe_channel_router)
-root_router.include_router(common.common_router)
-root_router.include_router(language.language_router)
-root_router.include_router(admin.admin_router)
-root_router.include_router(feedback.feedback_router)
-root_router.include_router(vk.vk_router)
+router.include_router(subscribe_channel.router)
+router.include_router(common.router)
+router.include_router(language.router)
+router.include_router(admin.router)
+router.include_router(feedback.router)
+router.include_router(vk.router)

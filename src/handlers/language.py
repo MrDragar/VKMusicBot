@@ -10,10 +10,10 @@ from src.database.user import change_language
 from src.keyboards import get_language_keyboard
 from src.commands import set_commands_for_user
 
-language_router = Router()
+router = Router()
 
 
-@language_router.message(Command("language"))
+@router.message(Command("language"))
 class ShowLanguagesHandler(StateMassageHandler):
     async def handle(self):
         await self.bot.send_message(chat_id=self.chat.id,
@@ -22,7 +22,7 @@ class ShowLanguagesHandler(StateMassageHandler):
         await self.state.set_state(ChangingLanguageState.step)
 
 
-@language_router.message(ChangingLanguageState.step)
+@router.message(ChangingLanguageState.step)
 class GetLanguageHandler(ShowLanguagesHandler):
     async def handle(self):
         language_code = Language.get_language_code(self.event.text)

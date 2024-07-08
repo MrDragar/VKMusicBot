@@ -8,10 +8,10 @@ from aiogram.utils.i18n import gettext as _
 from src.filters import IsSubscriberFilter, IsSubscriberCallbackFilter
 from src.keyboards import get_share_link_keyboard
 
-subscribe_channel_router = Router()
+router = Router()
 
 
-@subscribe_channel_router.message(~IsSubscriberFilter())
+@router.message(~IsSubscriberFilter())
 class ShareLinkHandler(MessageHandler):
     async def handle(self) -> Any:
         await self.bot.send_message(chat_id=self.chat.id,
@@ -20,8 +20,8 @@ class ShareLinkHandler(MessageHandler):
                                     reply_markup=get_share_link_keyboard())
 
 
-@subscribe_channel_router.callback_query(F.text == "check_subscribe",
-                                         ~IsSubscriberCallbackFilter())
+@router.callback_query(F.text == "check_subscribe",
+                       ~IsSubscriberCallbackFilter())
 class ShareLinkCallbackHandler(CallbackQueryHandler):
     async def handle(self) -> Any:
         await self.bot.send_message(chat_id=self.message.chat.id,
