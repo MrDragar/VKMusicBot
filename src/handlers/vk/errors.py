@@ -18,7 +18,7 @@ class YoutubeErrorHandler(StateErrorHandler):
 
         await self.bot.send_message(
             self.event.update.message.chat.id,
-            _("Произошла какаята ошибка. Если не сложно, скиньте админам "
+            _("Произошла какая-то ошибка. Если не сложно, скиньте админам "
               "её текст и описание ваших действий (/send_feedback)")
         )
 

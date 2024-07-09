@@ -17,7 +17,7 @@ router = Router()
 
 @router.message(F.text.regexp(r"https?://vk.com/music/album/-?[\d_]+"))
 @router.message(F.text.regexp(r"https?://vk.com/music/playlist/-?[\d_]+"))
-@router.message(F.text.regexp(r"https?://vk.com/audio?z=audio_playlist-?[\d_]+/[\d_]"))
+@router.message(F.text.regexp(r"https?://vk.com/audio\?z=audio_playlist-?[\d]+_-?[\d]+/\w+"))
 class SendPlaylistByUrlHandler(MessageHandler):
     @inject
     async def handle(
@@ -25,8 +25,8 @@ class SendPlaylistByUrlHandler(MessageHandler):
             vk_service: VKPlaylistService = Provide[
                 Container.vk_playlist_service]
     ) -> Any:
-        owner_id, audio_id, hash_id = re.search(
-            r"-?[\d_]+", string=self.event.text
+        owner_id, audio_id = re.search(
+            r"-?[\d]+_-?[\d]+", string=self.event.text
         ).group().split("_")
 
         if not owner_id or not audio_id:

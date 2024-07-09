@@ -22,7 +22,6 @@ async def main() -> None:
     else:
         logging.basicConfig(level=logging.INFO, stream=sys.stdout)
         session = AiohttpSession(
-            api=TelegramAPIServer.from_base('http://localhost:8081'),
             timeout=0
         )
     bot = Bot(token=container.config.get("API_TOKEN"), session=session)
