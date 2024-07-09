@@ -1,15 +1,14 @@
-from typing import Any, Union
+from typing import Any
 
-from aiogram.dispatcher.router import Router
-from aiogram.handlers import CallbackQueryHandler
-from aiogram.filters import Command
-from aiogram import types, Bot
-from aiogram.utils.i18n import lazy_gettext as __, gettext as _
 from aiogram import F
+from aiogram import types
+from aiogram.dispatcher.router import Router
+from aiogram.filters import Command
+from aiogram.handlers import CallbackQueryHandler
+from aiogram.utils.i18n import lazy_gettext as __, gettext as _
 
-from .base_handlers import StateMassageHandler
 from src.filters import IsSubscriberCallbackFilter
-
+from .base_handlers import StateMassageHandler
 
 router = Router()
 
@@ -22,6 +21,15 @@ class CancelHandler(StateMassageHandler):
         await self.bot.send_message(chat_id=self.chat.id, text=_("Отмена"),
                                     reply_markup=types.ReplyKeyboardRemove())
         await self.state.clear()
+
+
+@router.callback_query(F.data == "cancel")
+class CancelQueryHandler(CallbackQueryHandler):
+    async def handle(self) -> Any:
+        await self.bot.send_message(chat_id=self.message.chat.id,
+                                    text=_("Отмена"))
+        await self.bot.delete_message(self.message.chat.id,
+                                      self.message.message_id)
 
 
 @router.message(Command("start", "help"))
