@@ -1,24 +1,27 @@
-from typing import Any, List
+import logging
+from typing import Any
 
-from aiogram.handlers import CallbackQueryHandler, MessageHandler
 from aiogram import types, F, Router
 from aiogram.filters import invert_f, Command
-from aiogram.utils.i18n import lazy_gettext as __, gettext as _
-from dependency_injector.wiring import inject, Provide
+from aiogram.handlers import CallbackQueryHandler, MessageHandler
 from aiogram.types import URLInputFile
+from aiogram.utils.i18n import gettext as _
+from dependency_injector.wiring import inject, Provide
 
-from src.states import GetSongNameState
-from src.handlers.base_handlers import StateMassageHandler
-from src.keyboards import get_songs_keyboard
 from src.callbacks import TrackCallback, SongListCallback
 from src.containers import Container
+from src.handlers.base_handlers import StateMassageHandler
+from src.handlers.advert_mixins import AdvertMixin
+from src.keyboards import get_songs_keyboard
 from src.services import VkTrackService
+from src.states import GetSongNameState
 
 router = Router()
 
 
 @router.message(Command("search_song"))
 class SearchSongsHandler(MessageHandler):
+    @inject
     async def handle(self):
         await self.bot.delete_message(self.from_user.id,
                                       self.event.message_id)
@@ -41,6 +44,7 @@ async def handle_too_big_text(message: types.Message):
 @router.message(GetSongNameState.step1)
 @router.message()
 class SendMusicListHandler(StateMassageHandler):
+    @inject
     async def handle(
             self,
             vk_service: VkTrackService = Provide[Container.vk_track_service]
@@ -69,7 +73,7 @@ class SendMusicListHandler(StateMassageHandler):
 
 
 @router.callback_query(TrackCallback.filter())
-class SendSongByNameHandler(CallbackQueryHandler):
+class SendSongByNameHandler(CallbackQueryHandler, AdvertMixin):
     callback_data: str
 
     @inject
@@ -83,6 +87,7 @@ class SendSongByNameHandler(CallbackQueryHandler):
             owner_id=data.owner_id,
             track_id=data.track_id
         )
+        logging.debug("sending audio")
         await self.bot.send_audio(
             self.message.chat.id,
             audio=URLInputFile(track.url),
@@ -91,6 +96,9 @@ class SendSongByNameHandler(CallbackQueryHandler):
             title=track.title,
             performer=track.artist_name
         )
+        logging.debug("end sending audio")
+
+        await self.send_advert()
 
 
 @router.callback_query(SongListCallback.filter())

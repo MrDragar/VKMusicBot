@@ -1,13 +1,12 @@
-from typing import Any, List
 import re
+from typing import Any
 
-from aiogram.handlers import MessageHandler
+from aiogram import F
 from aiogram import Router
-from aiogram import types, F
-from aiogram.filters import invert_f
-from aiogram.utils.i18n import lazy_gettext as __, gettext as _
-from dependency_injector.wiring import inject, Provide
+from aiogram.handlers import MessageHandler
 from aiogram.types import URLInputFile
+from aiogram.utils.i18n import gettext as _
+from dependency_injector.wiring import Provide, inject
 
 from src.containers import Container
 from src.services import VkTrackService
@@ -18,6 +17,7 @@ router = Router()
 @router.message(F.text.regexp(r"https?://vk.com/audio-?[\d_]+"))
 @router.message(F.text.regexp(r"[vk.com/audio]+-?[\d_]+"))
 class SendSongByUrlHandler(MessageHandler):
+    @inject
     async def handle(
             self,
             vk_service: VkTrackService = Provide[Container.vk_track_service]
@@ -33,6 +33,7 @@ class SendSongByUrlHandler(MessageHandler):
             )
             return
         track = await vk_service.get_track(int(owner_id), int(audio_id))
+
         await self.bot.send_audio(
             self.chat.id,
             audio=URLInputFile(track.url),

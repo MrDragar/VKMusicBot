@@ -2,13 +2,13 @@ from abc import ABC
 
 from aiogram.handlers import MessageHandler
 
-from src.config import ADMINS_ID
 from src.database.advert import get_random_advert, add_current_number_to_advert
 
 
 class AdvertMixin(MessageHandler, ABC):
     async def send_advert(self):
-        if self.from_user.id in ADMINS_ID:
+        container = self.data["container"]
+        if self.from_user.id in container.config.ADMINS_ID():
             return
 
         advert = await get_random_advert()
@@ -22,7 +22,7 @@ class AdvertMixin(MessageHandler, ABC):
         full = await add_current_number_to_advert(advert.id)
 
         if full:
-            for admin in ADMINS_ID:
+            for admin in container.config.ADMINS_ID():
                 await self.bot.send_message(chat_id=admin,
                                             text="Реклама №{0} закончилась \n"
                                                  "Набрано {1} просмотров"

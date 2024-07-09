@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Optional, List, Tuple
-from parse import search as parse_search
-import aiohttp
-from aiohttp.web import HTTPException
+from typing import Optional, List
 
-from aiovk.drivers import HttpDriver
+import aiohttp
 import aiovk
+from aiohttp.web import HTTPException
+from aiovk.drivers import HttpDriver
+from parse import search as parse_search
 
 
 @dataclass

@@ -1,20 +1,22 @@
-from aiogram import Bot, Dispatcher
-
 import asyncio
 import logging
 import sys
 
-from src.database.init_database import init_db, close_db
-from src.middlewares import setup_i18n
-from src.handlers import router
+from aiogram import Bot, Dispatcher
+from aiogram.client.session.aiohttp import AiohttpSession
+
 from src.commands import register_commands
 from src.containers import Container
+from src.database.init_database import init_db, close_db
+from src.handlers import router
+from src.middlewares import setup_i18n
 
 
 async def main() -> None:
     container = Container()
     container.config.load()
-    bot = Bot(token=container.config.get("API_TOKEN"))
+    session = AiohttpSession(timeout=0)
+    bot = Bot(token=container.config.get("API_TOKEN"), session=session)
     dp = Dispatcher(container=container)
     await init_db()
     setup_i18n(dp)
@@ -25,5 +27,5 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+    logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
     asyncio.run(main())

@@ -1,25 +1,24 @@
-from typing import Any, List
+from typing import Any
 
-from aiogram.handlers import CallbackQueryHandler, MessageHandler
 from aiogram import types, F, Router
 from aiogram.filters import invert_f, Command
-from aiogram.utils.i18n import lazy_gettext as __, gettext as _
-from dependency_injector.wiring import inject, Provide
-from aiogram.types import URLInputFile
+from aiogram.handlers import CallbackQueryHandler
+from aiogram.utils.i18n import gettext as _
+from dependency_injector.wiring import Provide, inject
 
-from src.states import GetPlaylistNameState
+from src.callbacks import PlaylistListCallback, PlaylistCallback
+from src.containers import Container
 from src.handlers.base_handlers import StateMassageHandler
 from src.keyboards import get_playlists_keyboard, get_playlist_keyboard
-from src.callbacks import (TrackCallback, SongListCallback,
-                           PlaylistListCallback, PlaylistCallback)
-from src.containers import Container
-from src.services import VkTrackService, VKTrackRepository, VKPlaylistService
+from src.services import VKPlaylistService
+from src.states import GetPlaylistNameState
 
 router = Router()
 
 
 @router.message(Command("search_playlist"))
 class SearchPlaylistsHandler(StateMassageHandler):
+    @inject
     async def handle(self) -> Any:
         await self.bot.delete_message(self.from_user.id,
                                       self.event.message_id)
@@ -41,6 +40,7 @@ async def handle_no_text(message: types.Message):
 
 @router.message(GetPlaylistNameState.step1)
 class SendPlaylistListHandler(StateMassageHandler):
+    @inject
     async def handle(
             self,
             vk_service: VKPlaylistService = Provide[
@@ -71,6 +71,7 @@ class SendPlaylistListHandler(StateMassageHandler):
 
 @router.callback_query(PlaylistListCallback.filter())
 class ChangePlaylistsPageHandler(CallbackQueryHandler):
+    @inject
     async def handle(
             self,
             vk_service: VKPlaylistService = Provide[
@@ -98,6 +99,7 @@ class ChangePlaylistsPageHandler(CallbackQueryHandler):
 
 @router.callback_query(PlaylistCallback.filter())
 class SendPlaylist(CallbackQueryHandler):
+    @inject
     async def handle(
             self,
             vk_service: VKPlaylistService = Provide[

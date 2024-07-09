@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from abc import ABC
 
 from .repositories import (VKTrackRepository, Track, TrackArray, VKRepository,
@@ -35,13 +36,16 @@ class VkTrackService(VKService):
             return track
         orig_track = await self._repository.get_original_track(track.artist_id,
                                                                track.title)
-        track.capture_url = await \
-            self._repository.get_capture_link(owner_id=orig_track.owner_id,
-                                              track_id=orig_track.id)
+        track.capture_url = await self._repository.get_capture_link(
+            owner_id=orig_track.owner_id,
+            track_id=orig_track.id
+        )
         return track
 
     async def get_track(self, owner_id: int, track_id: int) -> Track:
+        logging.debug("Collecting info about track")
         track = await self._repository.get_by_id(owner_id, track_id)
+        logging.debug("Getting capture for track")
         track = await self._add_capture(track)
         return track
 
