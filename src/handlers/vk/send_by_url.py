@@ -17,6 +17,7 @@ router = Router()
 
 @router.message(F.text.regexp(r"https?://vk.com/music/album/-?[\d_]+"))
 @router.message(F.text.regexp(r"https?://vk.com/music/playlist/-?[\d_]+"))
+@router.message(F.text.regexp(r"https?://vk.com/audio?z=audio_playlist-?[\d_]+/[\d_]"))
 class SendPlaylistByUrlHandler(MessageHandler):
     @inject
     async def handle(
