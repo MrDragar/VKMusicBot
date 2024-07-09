@@ -1,14 +1,11 @@
 from aiogram.dispatcher.router import Router
 
-from src.filters import IsAdmin
 from . import song_search
 from . import playlist_search
 from . import send_by_url
 from . import errors
 
 router = Router()
-
-router.message.filter(IsAdmin())
 
 router.include_router(errors.router)
 router.include_router(send_by_url.router)
