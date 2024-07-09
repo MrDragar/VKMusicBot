@@ -4,6 +4,7 @@ import sys
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.session.aiohttp import AiohttpSession
+from aiogram.client.telegram import TelegramAPIServer
 
 from src.commands import register_commands
 from src.containers import Container
@@ -15,7 +16,15 @@ from src.middlewares import setup_i18n
 async def main() -> None:
     container = Container()
     container.config.load()
-    session = AiohttpSession(timeout=0)
+    if container.config.get("DEBUG"):
+        session = AiohttpSession(timeout=0)
+        logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+    else:
+        logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+        session = AiohttpSession(
+            api=TelegramAPIServer.from_base('http://localhost:8081'),
+            timeout=0
+        )
     bot = Bot(token=container.config.get("API_TOKEN"), session=session)
     dp = Dispatcher(container=container)
     await init_db()
@@ -27,5 +36,4 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
     asyncio.run(main())
