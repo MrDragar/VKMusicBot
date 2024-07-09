@@ -9,9 +9,8 @@ class Container(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(
         modules=[
             ".handlers.vk.song_search",
-            ".handlers.vk.song_by_url",
-            ".handlers.vk.playlist_by_url",
             ".handlers.vk.playlist_search",
+            ".handlers.vk.send_by_url",
         ]
     )
     vk_track_repository = providers.Factory(

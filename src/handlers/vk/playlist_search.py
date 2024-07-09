@@ -1,6 +1,6 @@
 from typing import Any
 
-from aiogram import types, F, Router
+from aiogram import types, F, Router, flags
 from aiogram.filters import invert_f, Command
 from aiogram.handlers import CallbackQueryHandler
 from aiogram.utils.i18n import gettext as _
@@ -17,6 +17,7 @@ router = Router()
 
 
 @router.message(Command("search_playlist"))
+@flags.chat_action("typing")
 class SearchPlaylistsHandler(StateMassageHandler):
     @inject
     async def handle(self) -> Any:
@@ -39,6 +40,7 @@ async def handle_no_text(message: types.Message):
 
 
 @router.message(GetPlaylistNameState.step1)
+@flags.chat_action("typing")
 class SendPlaylistListHandler(StateMassageHandler):
     @inject
     async def handle(
@@ -70,6 +72,7 @@ class SendPlaylistListHandler(StateMassageHandler):
 
 
 @router.callback_query(PlaylistListCallback.filter())
+@flags.chat_action("typing")
 class ChangePlaylistsPageHandler(CallbackQueryHandler):
     @inject
     async def handle(
@@ -98,6 +101,7 @@ class ChangePlaylistsPageHandler(CallbackQueryHandler):
 
 
 @router.callback_query(PlaylistCallback.filter())
+@flags.chat_action("typing")
 class SendPlaylist(CallbackQueryHandler):
     @inject
     async def handle(

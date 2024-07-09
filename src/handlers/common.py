@@ -35,27 +35,39 @@ class CancelQueryHandler(CallbackQueryHandler):
 @router.message(Command("start", "help"))
 class StartHandler(StateMassageHandler):
     async def handle(self) -> Any:
-        await self.bot.send_message(chat_id=self.chat.id,
-                                    text=_(
-                                        "Привет. С помощью этого бота ты можешь "
-                                        "скачать любую песню из ВК. "
-                                        "Для этого напиши мне название или "
-                                        "автора композиции или просто скинь "
-                                        "ссылку. По всем вопросам пишите на "
-                                        "yshhenyaev@mail.ru \n"
-                                        "Для смены языка пропишите /language ."))
+        await self.bot.send_message(
+            chat_id=self.chat.id,
+            text=_(
+                "Привет. С помощью этого бота ты можешь "
+                "скачать любую песню из ВК.\n"
+                "Для поиска песни отправьте мне её название либо её "
+                "исполнителя\n"
+                "/search_song - поиск песни\n"
+                "/search_playlist - поиск альбома\n"
+                "Также вы сразу можете скинуть мне ссылку на нужный "
+                "альбом или трек \n"
+                ". По всем вопросам пишите на "
+                "yshhenyaev@mail.ru \n"
+                "Для смены языка пропишите /language .")
+        )
 
 
 @router.callback_query(F.text == "check_subscribe",
                        IsSubscriberCallbackFilter())
 class StartCallbackHandler(CallbackQueryHandler):
     async def handle(self) -> Any:
-        await self.bot.send_message(chat_id=self.event.message.chat.id,
-                                    text=_(
-                                        "Привет. С помощью этого бота ты можешь "
-                                        "скачать любую песню из ВК."
-                                        "Для этого напиши мне название или"
-                                        "автрора композиции или просто скинь "
-                                        "ссылку. По всем вопросам пишите на "
-                                        "yshhenyaev@mail.ru \n"
-                                        "Для смены языка пропишите \n/language ."))
+        await self.bot.send_message(
+            chat_id=self.message.chat.id,
+            text=_(
+                "Привет. С помощью этого бота ты можешь "
+                "скачать любую песню из ВК.\n"
+                "Для поиска песни отправьте мне её название либо её "
+                "исполнителя\n"
+                "/search_song - поиск песни\n"
+                "/search_playlist - поиск альбома\n"
+                "Также вы сразу можете скинуть мне ссылку на нужный "
+                "альбом или трек.\n"
+                "По всем вопросам пишите на yshhenyaev@mail.ru \n"
+                "Для обратной связи пропишите /send_feedback \n"
+                "Для смены языка пропишите /language .")
+        )

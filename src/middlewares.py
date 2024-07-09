@@ -1,4 +1,5 @@
 from aiogram.types import Message, error_event, CallbackQuery
+from aiogram.utils.callback_answer import CallbackAnswerMiddleware
 from aiogram.utils.i18n import I18n
 from aiogram.utils.i18n.middleware import I18nMiddleware
 from aiogram import Dispatcher
@@ -41,5 +42,8 @@ def setup_i18n(dp: Dispatcher):
     callback_middleware = CallbackDatabaseI18nMiddleware(i18n)
     dp.callback_query.middleware.register(callback_middleware)
 
+    dp.callback_query.middleware(CallbackAnswerMiddleware(pre=True, text="⏳⏳⏳"))
+
     error_middleware = ErrorDatabaseI18nMiddleware(i18n)
     dp.errors.middleware.register(error_middleware)
+

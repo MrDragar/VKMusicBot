@@ -121,7 +121,7 @@ class VKTrackRepository(VKRepository):
             id=data["id"], owner_id=data["owner_id"], title=data["title"],
             url=data["url"], duration=data["duration"],
             artist_name=data.get("artist", None),
-            artist_id=main_artist["id"] if main_artist
+            artist_id=main_artist["id"] if main_artist and "id" in main_artist
             else None
         )
 

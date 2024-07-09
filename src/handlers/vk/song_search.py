@@ -5,6 +5,7 @@ from aiogram import types, F, Router
 from aiogram.filters import invert_f, Command
 from aiogram.handlers import CallbackQueryHandler, MessageHandler
 from aiogram.types import URLInputFile
+from aiogram.utils.chat_action import ChatActionSender
 from aiogram.utils.i18n import gettext as _
 from dependency_injector.wiring import inject, Provide
 
@@ -26,8 +27,7 @@ class SearchSongsHandler(MessageHandler):
         await self.bot.delete_message(self.from_user.id,
                                       self.event.message_id)
         await self.bot.send_message(chat_id=self.from_user.id,
-                                    text=_(
-                                        "Введите название или автора композиции"))
+                                    text=_("Введите название или автора композиции"))
         await self.data["state"].set_state(GetSongNameState.step1)
 
 
@@ -88,14 +88,16 @@ class SendSongByNameHandler(CallbackQueryHandler, AdvertMixin):
             track_id=data.track_id
         )
         logging.debug("sending audio")
-        await self.bot.send_audio(
-            self.message.chat.id,
-            audio=URLInputFile(track.url),
-            thumbnail=URLInputFile(
-                track.capture_url) if track.capture_url else None,
-            title=track.title,
-            performer=track.artist_name
-        )
+        async with ChatActionSender(bot=self.bot, chat_id=self.message.chat.id,
+                                    action='upload_voice'):
+            await self.bot.send_audio(
+                self.message.chat.id,
+                audio=URLInputFile(track.url),
+                thumbnail=URLInputFile(
+                    track.capture_url) if track.capture_url else None,
+                title=track.title,
+                performer=track.artist_name
+            )
         logging.debug("end sending audio")
 
         await self.send_advert()

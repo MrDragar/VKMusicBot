@@ -1,34 +1,42 @@
+from aiogram import Bot
 from aiogram.types import BotCommand, BotCommandScopeDefault, \
     BotCommandScopeChat
-from aiogram import Bot
 
 from src.containers import Container
 from src.database.models import Language
 
 ru_bot_commands = [
-    BotCommand(command="start", description="Старт бота"),
     BotCommand(command="help", description="Помощь"),
+    BotCommand(command="search_song", description="Поиск песни"),
+    BotCommand(command="search_playlist",
+               description="Поиск альбома или плейлиста"),
     BotCommand(command="cancel", description="Отмена"),
     BotCommand(command="language", description="Сменить язык"),
     BotCommand(command="send_feedback", description="Отправить отзыв")
 ]
 uk_bot_commands = [
-    BotCommand(command="start", description="Старт бота"),
     BotCommand(command="help", description="Допомога"),
+    BotCommand(command="search_song", description="Пошук пісні"),
+    BotCommand(command="search_playlist",
+               description="Пошук альбому або плейлиста"),
     BotCommand(command="cancel", description="Скасування"),
     BotCommand(command="language", description="Змінити мову"),
     BotCommand(command="send_feedback", description="Надіслати відгук")
 ]
 en_bot_commands = [
     BotCommand(command="start", description="Start bot"),
-    BotCommand(command="help", description="Help"),
+    BotCommand(command="search_song", description="Search song"),
+    BotCommand(command="search_playlist",
+               description="Search playlist or album"),
     BotCommand(command="cancel", description="Cancel"),
     BotCommand(command="language", description="Change language"),
     BotCommand(command="send_feedback", description="Send feedback")
 ]
 admin_bot_commands = [
-    BotCommand(command="start", description="Старт"),
     BotCommand(command="help", description="Помощь"),
+    BotCommand(command="search_song", description="Поиск песни"),
+    BotCommand(command="search_playlist",
+               description="Поиск альбома или плейлиста"),
     BotCommand(command="cancel", description="Отмена"),
     BotCommand(command="language", description="Сменить язык"),
     BotCommand(command="send_feedback",
@@ -53,20 +61,24 @@ admin_bot_commands = [
 
 async def register_commands(bot: Bot, container: Container):
     await bot.set_my_commands(commands=ru_bot_commands,
-                              scope=BotCommandScopeDefault(), language_code=None)
+                              scope=BotCommandScopeDefault(),
+                              language_code=None)
 
     await bot.set_my_commands(commands=uk_bot_commands,
-                              scope=BotCommandScopeDefault(), language_code="uk")
+                              scope=BotCommandScopeDefault(),
+                              language_code="uk")
 
     await bot.set_my_commands(commands=en_bot_commands,
-                              scope=BotCommandScopeDefault(), language_code="en")
+                              scope=BotCommandScopeDefault(),
+                              language_code="en")
 
     for admin_id in container.config.ADMINS_ID():
         await bot.set_my_commands(commands=admin_bot_commands,
                                   scope=BotCommandScopeChat(chat_id=admin_id))
 
 
-async def set_commands_for_user(bot: Bot, language_code: Language, user_id: int, container: Container):
+async def set_commands_for_user(bot: Bot, language_code: Language, user_id: int,
+                                container: Container):
     if user_id in container.config.ADMINS_ID():
         return
     match language_code:
