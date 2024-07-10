@@ -18,15 +18,15 @@ async def add_user():
     await day_statistic.save()
 
 
-async def add_successful_request():
+async def add_download():
     day_statistic = await get_day_statistic()
-    day_statistic.successful_requests += 1
+    day_statistic.downloads += 1
     await day_statistic.save()
 
 
-async def add_unsuccessful_request():
+async def add_error():
     day_statistic = await get_day_statistic()
-    day_statistic.unsuccessful_requests += 1
+    day_statistic.errors += 1
     await day_statistic.save()
 
 
@@ -38,14 +38,14 @@ async def get_monthly_statistics(month: Optional[date] = None) -> Dict[str, int]
     end_date = (start_date + timedelta(days=32)).replace(day=1) - timedelta(days=1)
     query = await DayStatistic.filter(date__gte=start_date, date__lte=end_date)
 
-    new_users = successful_requests = unsuccessful_requests = 0
+    new_users = downloads = errors = 0
     for day in query:
         new_users += day.new_users
-        successful_requests += day.successful_requests
-        unsuccessful_requests += day.unsuccessful_requests
+        downloads += day.downloads
+        errors += day.errors
 
     return {
         'new_users': new_users,
-        'successful_requests': successful_requests,
-        'unsuccessful_requests': unsuccessful_requests,
+        'downloads': downloads,
+        'errors': errors,
     }

@@ -9,15 +9,18 @@ from aiogram.utils.i18n import gettext as _
 from dependency_injector.wiring import Provide, inject
 
 from src.containers import Container
+from src.database.day_statistic import add_download
 from src.keyboards import get_playlist_keyboard
 from src.services import VKPlaylistService, VkTrackService
+from src.handlers.advert_mixins import AdvertMixin
 
 router = Router()
 
 
 @router.message(F.text.regexp(r"https?://vk.com/music/album/-?[\d_]+"))
 @router.message(F.text.regexp(r"https?://vk.com/music/playlist/-?[\d_]+"))
-@router.message(F.text.regexp(r"https?://vk.com/audio\?z=audio_playlist-?[\d]+_-?[\d]+/\w+"))
+@router.message(F.text.regexp(
+    r"https?://vk.com/audio\?z=audio_playlist-?[\d]+_-?[\d]+/\w+"))
 class SendPlaylistByUrlHandler(MessageHandler):
     @inject
     async def handle(
@@ -50,7 +53,7 @@ class SendPlaylistByUrlHandler(MessageHandler):
 
 @router.message(F.text.regexp(r"https?://vk.com/audio-?[\d_]+"))
 @router.message(F.text.regexp(r"[vk.com/audio]+-?[\d_]+"))
-class SendSongByUrlHandler(MessageHandler):
+class SendSongByUrlHandler(MessageHandler, AdvertMixin):
     @inject
     async def handle(
             self,
@@ -77,6 +80,9 @@ class SendSongByUrlHandler(MessageHandler):
                 title=track.title,
                 performer=track.artist_name
             )
+
+        await add_download()
+        await self.send_advert()
 
 
 @router.message(F.text.regexp(r"https?://vk.com"))

@@ -13,23 +13,27 @@ router = Router()
 class SentMonthlyStatisticHandler(MessageHandler):
     async def handle(self):
         result = await get_monthly_statistics(date.today())
-        await self.bot.send_message(chat_id=self.chat.id,
-                                    text="За этот месяц новых пользователей: {0} \n"
-                                         "Успешных запросов: {1} \n"
-                                         "Запросов с неотловленной ошибкой: {2}"
-                                    .format(result["new_users"],
-                                            result["successful_requests"],
-                                            result["unsuccessful_requests"]))
+        await self.bot.send_message(
+            chat_id=self.chat.id,
+            text="За этот месяц новых пользователей: {0} \n"
+                 "Скачиваний: {1} \n"
+                 "Каких-то ошибок: {2}"
+            .format(result["new_users"],
+                    result["downloads"],
+                    result["errors"])
+        )
 
 
 @router.message(Command("get_day_statistic"))
 class SentMonthlyStatisticHandler(MessageHandler):
     async def handle(self):
         result = await get_day_statistic()
-        await self.bot.send_message(chat_id=self.chat.id,
-                                    text="За этот день новых пользователей: {0} \n"
-                                         "Успешных запросов: {1} \n"
-                                         "Запросов с неотловленной ошибкой: {2}"
-                                    .format(result.new_users,
-                                            result.successful_requests,
-                                            result.unsuccessful_requests))
+        await self.bot.send_message(
+            chat_id=self.chat.id,
+            text="За этот день новых пользователей: {0} \n"
+                 "Успешных запросов: {1} \n"
+                 "Запросов с неотловленной ошибкой: {2}"
+            .format(result.new_users,
+                    result.downloads,
+                    result.errors)
+        )

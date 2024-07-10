@@ -11,6 +11,7 @@ from dependency_injector.wiring import inject, Provide
 
 from src.callbacks import TrackCallback, SongListCallback
 from src.containers import Container
+from src.database.day_statistic import add_download
 from src.handlers.base_handlers import StateMassageHandler
 from src.handlers.advert_mixins import AdvertMixin
 from src.keyboards import get_songs_keyboard
@@ -99,7 +100,7 @@ class SendSongByNameHandler(CallbackQueryHandler, AdvertMixin):
                 performer=track.artist_name
             )
         logging.debug("end sending audio")
-
+        await add_download()
         await self.send_advert()
 
 

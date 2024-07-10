@@ -40,8 +40,8 @@ class User(Model):
 class DayStatistic(Model):
     date = fields.DateField(pk=True)
     new_users = fields.IntField(default=0)
-    successful_requests = fields.IntField(default=0)
-    unsuccessful_requests = fields.IntField(default=0)
+    downloads = fields.IntField(default=0)
+    errors = fields.IntField(default=0)
 
 
 class Advert(Model):
