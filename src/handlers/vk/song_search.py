@@ -74,7 +74,7 @@ class SendMusicListHandler(StateMassageHandler):
 
 
 @router.callback_query(TrackCallback.filter())
-class SendSongByNameHandler(CallbackQueryHandler, AdvertMixin):
+class SendSongByNameHandler(AdvertMixin, CallbackQueryHandler):
     callback_data: str
 
     @inject

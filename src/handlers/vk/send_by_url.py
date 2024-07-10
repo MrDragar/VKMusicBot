@@ -53,7 +53,7 @@ class SendPlaylistByUrlHandler(MessageHandler):
 
 @router.message(F.text.regexp(r"https?://vk.com/audio-?[\d_]+"))
 @router.message(F.text.regexp(r"[vk.com/audio]+-?[\d_]+"))
-class SendSongByUrlHandler(MessageHandler, AdvertMixin):
+class SendSongByUrlHandler(AdvertMixin, MessageHandler):
     @inject
     async def handle(
             self,
